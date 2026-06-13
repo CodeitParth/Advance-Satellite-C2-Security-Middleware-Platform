@@ -1,0 +1,30 @@
+{
+  "REQUEST_TELEMETRY": {
+    "risk_score": 5, "risk_tier": "LOW",
+    "justification": "Telemetry request is read-only with no satellite state change. Nominal battery and orbital conditions. Routine operation.",
+    "sparta_technique": null, "cvss_estimate": null,
+    "affected_subsystems": ["TM"],
+    "recommended_action": "AUTO_APPROVE", "confidence": 0.99
+  },
+  "UPDATE_PARAMETER": {
+    "risk_score": 45, "risk_tier": "MEDIUM",
+    "justification": "Parameter update modifies OBC configuration state. Non-safety-critical subsystem. Nominal satellite conditions.",
+    "sparta_technique": "T0836", "cvss_estimate": "4.2",
+    "affected_subsystems": ["OBC"],
+    "recommended_action": "SINGLE_APPROVAL", "confidence": 0.87
+  },
+  "DISABLE_SAFE_MODE": {
+    "risk_score": 87, "risk_tier": "HIGH",
+    "justification": "Disabling safe mode at 9% battery during eclipse phase violates SR-001. Thermal elevation compounds power risk. Irreversible power failure is probable. SPARTA T0836 applies.",
+    "sparta_technique": "T0836", "cvss_estimate": "8.4",
+    "affected_subsystems": ["EPS", "OBC", "ADCS"],
+    "recommended_action": "DUAL_APPROVAL", "confidence": 0.96
+  },
+  "THRUSTER_FIRE": {
+    "risk_score": 92, "risk_tier": "HIGH",
+    "justification": "Thruster firing is an irreversible orbital manoeuvre. Current eclipse phase violates SR-002. Safe mode must be active before thrusters engage. SPARTA T0869 applies.",
+    "sparta_technique": "T0869", "cvss_estimate": "9.1",
+    "affected_subsystems": ["ADCS", "EPS"],
+    "recommended_action": "DUAL_APPROVAL", "confidence": 0.97
+  }
+}

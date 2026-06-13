@@ -1,0 +1,287 @@
+{
+  "_comment": "SCSP Seed Data Specification — exact values for seed_demo.py",
+  "_version": "1.0.0",
+
+  "operators": [
+    {
+      "username": "op_chen",
+      "password": "operator123",
+      "role": "operator",
+      "full_name": "Wei Chen",
+      "typical_subsystems": ["EPS", "TM"],
+      "session_hour_start": 8,
+      "session_hour_end": 16,
+      "cmds_per_session_min": 15,
+      "cmds_per_session_max": 25,
+      "command_type_weights": {
+        "REQUEST_TELEMETRY": 0.25,
+        "ENABLE_SAFE_MODE": 0.10,
+        "DISABLE_SAFE_MODE": 0.10,
+        "SET_BEACON_RATE": 0.15,
+        "UPDATE_PARAMETER": 0.20,
+        "RESET_SUBSYSTEM": 0.10,
+        "REQUEST_STATUS": 0.10
+      }
+    },
+    {
+      "username": "op_martinez",
+      "password": "operator123",
+      "role": "operator",
+      "full_name": "Carlos Martinez",
+      "typical_subsystems": ["ADCS", "OBC"],
+      "session_hour_start": 16,
+      "session_hour_end": 0,
+      "cmds_per_session_min": 20,
+      "cmds_per_session_max": 35,
+      "command_type_weights": {
+        "ATTITUDE_MANOEUVRE": 0.25,
+        "SCHEDULE_MANOEUVRE": 0.20,
+        "THRUSTER_FIRE": 0.05,
+        "UPDATE_PARAMETER": 0.20,
+        "RESET_OBC": 0.05,
+        "RESET_SUBSYSTEM": 0.10,
+        "REQUEST_STATUS": 0.15
+      }
+    },
+    {
+      "username": "op_patel",
+      "password": "operator123",
+      "role": "operator",
+      "full_name": "Priya Patel",
+      "typical_subsystems": ["TM", "PAYLOAD"],
+      "session_hour_start": 0,
+      "session_hour_end": 8,
+      "cmds_per_session_min": 10,
+      "cmds_per_session_max": 18,
+      "command_type_weights": {
+        "REQUEST_TELEMETRY": 0.30,
+        "SET_BEACON_RATE": 0.20,
+        "PAYLOAD_ACTIVATE": 0.20,
+        "UPDATE_PARAMETER": 0.15,
+        "REQUEST_STATUS": 0.15
+      }
+    },
+    {
+      "username": "so_kim",
+      "password": "approver123",
+      "role": "approver",
+      "full_name": "Jisoo Kim",
+      "typical_subsystems": [],
+      "session_hour_start": 8,
+      "session_hour_end": 20,
+      "cmds_per_session_min": 0,
+      "cmds_per_session_max": 0,
+      "command_type_weights": {}
+    },
+    {
+      "username": "so_okonkwo",
+      "password": "approver123",
+      "role": "approver",
+      "full_name": "Emeka Okonkwo",
+      "typical_subsystems": [],
+      "session_hour_start": 16,
+      "session_hour_end": 4,
+      "cmds_per_session_min": 0,
+      "cmds_per_session_max": 0,
+      "command_type_weights": {}
+    },
+    {
+      "username": "admin_root",
+      "password": "admin123",
+      "role": "admin",
+      "full_name": "System Admin",
+      "typical_subsystems": [],
+      "session_hour_start": 9,
+      "session_hour_end": 17,
+      "cmds_per_session_min": 0,
+      "cmds_per_session_max": 0,
+      "command_type_weights": {}
+    }
+  ],
+
+  "history_config": {
+    "days_back": 30,
+    "commands_per_operator": 50,
+    "status_distribution": {
+      "DISPATCHED": 45,
+      "REJECTED": 3,
+      "BLOCKED": 2
+    },
+    "risk_tier_distribution_for_dispatched": {
+      "LOW": 0.60,
+      "MEDIUM": 0.30,
+      "HIGH": 0.10
+    }
+  },
+
+  "telemetry_snapshots": {
+    "nominal": {
+      "satellite_id": "SAT_ALPHA",
+      "battery_percent": 78.0,
+      "safe_mode_active": false,
+      "thermal_status": "NOMINAL",
+      "orbital_phase": "SUNLIT",
+      "link_margin_db": 12.5,
+      "last_contact_min": 4
+    },
+    "low_power_eclipse": {
+      "satellite_id": "SAT_ALPHA",
+      "battery_percent": 9.0,
+      "safe_mode_active": true,
+      "thermal_status": "ELEVATED",
+      "orbital_phase": "ECLIPSE",
+      "link_margin_db": 3.2,
+      "last_contact_min": 18
+    },
+    "stress_state": {
+      "satellite_id": "SAT_ALPHA",
+      "battery_percent": 22.0,
+      "safe_mode_active": false,
+      "thermal_status": "CRITICAL",
+      "orbital_phase": "PENUMBRA",
+      "link_margin_db": 1.1,
+      "last_contact_min": 35
+    },
+    "optimal": {
+      "satellite_id": "SAT_ALPHA",
+      "battery_percent": 95.0,
+      "safe_mode_active": false,
+      "thermal_status": "NOMINAL",
+      "orbital_phase": "SUNLIT",
+      "link_margin_db": 22.0,
+      "last_contact_min": 1
+    }
+  },
+
+  "demo_scenarios": {
+
+    "pending_command_for_warmup": {
+      "_comment": "Pre-staged command in PENDING_DUAL_APPROVAL — ready for judge to approve on arrival",
+      "submitter_username": "op_chen",
+      "command_type": "DISABLE_SAFE_MODE",
+      "subsystem": "EPS",
+      "apid": 398,
+      "risk_score": 87,
+      "risk_tier": "HIGH",
+      "ai_justification": "Disabling safe mode at 9% battery during eclipse phase violates SR-001. Thermal elevation compounds power risk. Irreversible power failure is probable. SPARTA T0836 applies.",
+      "sparta_technique": "T0836",
+      "cvss_estimate": "8.4",
+      "affected_subsystems": ["EPS", "OBC", "ADCS"],
+      "telemetry_snapshot": "low_power_eclipse",
+      "status": "PENDING_DUAL_APPROVAL",
+      "submitted_minutes_ago": 2,
+      "approvals_count": 0
+    },
+
+    "replay_attack": {
+      "_comment": "Two commands with identical nonce — second should be REPLAY_BLOCKED",
+      "command_type": "ATTITUDE_MANOEUVRE",
+      "subsystem": "ADCS",
+      "nonce": "replay-demo-nonce-fixed-uuid-001",
+      "first_submitted_minutes_ago": 8,
+      "second_submitted_minutes_ago": 0,
+      "first_status": "DISPATCHED",
+      "second_status": "REPLAY_BLOCKED"
+    },
+
+    "ledger_tamper": {
+      "_comment": "Entry at sequence 42 with pre-set risk_score=87 — tamper script changes to 12",
+      "target_sequence": 42,
+      "command_type": "DISABLE_SAFE_MODE",
+      "original_risk_score": 87,
+      "tampered_risk_score": 12,
+      "submitter_username": "op_chen",
+      "status": "DISPATCHED"
+    },
+
+    "dangerous_sequence": {
+      "_comment": "DISABLE_SAFE_MODE followed by THRUSTER_FIRE within 45s — triggers SEQ-002",
+      "command_1_type": "DISABLE_SAFE_MODE",
+      "command_1_minutes_ago": 1,
+      "command_2_type": "THRUSTER_FIRE",
+      "command_2_seconds_ago": 45,
+      "expected_rule": "SEQ-002",
+      "expected_score_elevation": 25
+    }
+  },
+
+  "ledger_seeding": {
+    "total_entries_target": 50,
+    "entry_distribution": {
+      "COMMAND_DISPATCHED": 38,
+      "COMMAND_REJECTED": 6,
+      "REPLAY_BLOCKED": 3,
+      "OVERRIDE_ACTIVATED": 1,
+      "SEQUENCE_ANOMALY": 2
+    },
+    "tamper_target_sequence": 42,
+    "tamper_field": "risk_score",
+    "tamper_original_value": 87,
+    "_note": "Entry 42 is seeded normally with risk_score=87. The demo tamper button changes it to 12 at demo time."
+  },
+
+  "demo_mode_fixture_commands": {
+    "_comment": "These exact fixtures must be in backend/fixtures/demo_scores.json",
+    "REQUEST_TELEMETRY": {
+      "risk_score": 5,
+      "risk_tier": "LOW",
+      "justification": "Telemetry request is read-only with no satellite state change. Nominal battery and orbital conditions. Routine operation.",
+      "sparta_technique": null,
+      "cvss_estimate": null,
+      "affected_subsystems": ["TM"],
+      "recommended_action": "AUTO_APPROVE",
+      "confidence": 0.99
+    },
+    "UPDATE_PARAMETER": {
+      "risk_score": 45,
+      "risk_tier": "MEDIUM",
+      "justification": "Parameter update modifies OBC configuration state. Non-safety-critical subsystem. Nominal satellite conditions. Single approval required.",
+      "sparta_technique": "T0836",
+      "cvss_estimate": "4.2",
+      "affected_subsystems": ["OBC"],
+      "recommended_action": "SINGLE_APPROVAL",
+      "confidence": 0.87
+    },
+    "DISABLE_SAFE_MODE": {
+      "risk_score": 87,
+      "risk_tier": "HIGH",
+      "justification": "Disabling safe mode at 9% battery during eclipse phase violates SR-001. Thermal elevation compounds power risk. Irreversible power failure is probable. SPARTA T0836 applies.",
+      "sparta_technique": "T0836",
+      "cvss_estimate": "8.4",
+      "affected_subsystems": ["EPS", "OBC", "ADCS"],
+      "recommended_action": "DUAL_APPROVAL",
+      "confidence": 0.96
+    },
+    "THRUSTER_FIRE": {
+      "risk_score": 92,
+      "risk_tier": "HIGH",
+      "justification": "Thruster firing is an irreversible orbital manoeuvre. Current eclipse phase violates SR-002. Safe mode must be active before thrusters engage. SPARTA T0869 applies.",
+      "sparta_technique": "T0869",
+      "cvss_estimate": "9.1",
+      "affected_subsystems": ["ADCS", "EPS"],
+      "recommended_action": "DUAL_APPROVAL",
+      "confidence": 0.97
+    },
+    "_default_fallback": {
+      "_comment": "Returned for any command type not in this fixture list",
+      "risk_score": 45,
+      "risk_tier": "MEDIUM",
+      "justification": "Command type not in demo fixtures — defaulting to MEDIUM risk for safety. Manual review recommended.",
+      "sparta_technique": null,
+      "cvss_estimate": null,
+      "affected_subsystems": [],
+      "recommended_action": "SINGLE_APPROVAL",
+      "confidence": 0.50
+    }
+  },
+
+  "known_passwords": {
+    "_comment": "For demo and test use only. NEVER use in production.",
+    "op_chen":     "operator123",
+    "op_martinez": "operator123",
+    "op_patel":    "operator123",
+    "so_kim":      "approver123",
+    "so_okonkwo":  "approver123",
+    "admin_root":  "admin123"
+  }
+}

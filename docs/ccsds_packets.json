@@ -1,0 +1,409 @@
+{
+  "_comment": "CCSDS Telecommand Packet Fixtures for SCSP MVP",
+  "_format": "Each entry: apid (hex), packet_hex (valid CCSDS), expected parsed output, telemetry contexts for scoring",
+  "_crc": "CRC-16-CCITT, polynomial 0x1021, init 0xFFFF, appended as final 2 bytes big-endian",
+  "_header": "6 bytes: [version|type|apid 2B][seq_flags|seq_count 2B][data_length 2B], then secondary header (1B function code), then data, then CRC",
+
+  "packets": {
+
+    "REQUEST_TELEMETRY": {
+      "apid": "0x100",
+      "apid_int": 256,
+      "subsystem": "TM",
+      "function_code": "0x01",
+      "description": "Request telemetry beacon from satellite",
+      "packet_hex": "1900C0000000012A4B",
+      "parameters": {},
+      "expected_parse": {
+        "success": true,
+        "apid": 256,
+        "subsystem": "TM",
+        "command_type": "REQUEST_TELEMETRY",
+        "sequence_count": 0,
+        "crc_valid": true
+      },
+      "telemetry_contexts": {
+        "nominal":        { "expected_tier": "LOW",    "expected_score_range": [0, 15] },
+        "low_power":      { "expected_tier": "LOW",    "expected_score_range": [0, 20] },
+        "critical_state": { "expected_tier": "LOW",    "expected_score_range": [0, 25] }
+      }
+    },
+
+    "SET_BEACON_RATE": {
+      "apid": "0x101",
+      "apid_int": 257,
+      "subsystem": "TM",
+      "function_code": "0x02",
+      "description": "Set telemetry beacon transmission rate",
+      "packet_hex": "190180000001020A6B21",
+      "parameters": { "rate_hz": 10 },
+      "expected_parse": {
+        "success": true,
+        "apid": 257,
+        "subsystem": "TM",
+        "command_type": "SET_BEACON_RATE",
+        "sequence_count": 0,
+        "crc_valid": true
+      },
+      "telemetry_contexts": {
+        "nominal":        { "expected_tier": "LOW",    "expected_score_range": [0, 20] },
+        "low_power":      { "expected_tier": "LOW",    "expected_score_range": [5, 25] },
+        "critical_state": { "expected_tier": "MEDIUM", "expected_score_range": [20, 40] }
+      }
+    },
+
+    "REQUEST_STATUS": {
+      "apid": "0x102",
+      "apid_int": 258,
+      "subsystem": "OBC",
+      "function_code": "0x01",
+      "description": "Request on-board computer status report",
+      "packet_hex": "19028000000103A1F2",
+      "parameters": {},
+      "expected_parse": {
+        "success": true,
+        "apid": 258,
+        "subsystem": "OBC",
+        "command_type": "REQUEST_STATUS",
+        "sequence_count": 0,
+        "crc_valid": true
+      },
+      "telemetry_contexts": {
+        "nominal":        { "expected_tier": "LOW",    "expected_score_range": [0, 15] },
+        "low_power":      { "expected_tier": "LOW",    "expected_score_range": [0, 20] },
+        "critical_state": { "expected_tier": "LOW",    "expected_score_range": [0, 25] }
+      }
+    },
+
+    "ENABLE_SAFE_MODE": {
+      "apid": "0x18F",
+      "apid_int": 399,
+      "subsystem": "EPS",
+      "function_code": "0x10",
+      "description": "Enable satellite safe mode (protective action)",
+      "packet_hex": "198FC000000110D4E7",
+      "parameters": {},
+      "expected_parse": {
+        "success": true,
+        "apid": 399,
+        "subsystem": "EPS",
+        "command_type": "ENABLE_SAFE_MODE",
+        "sequence_count": 0,
+        "crc_valid": true
+      },
+      "telemetry_contexts": {
+        "nominal":        { "expected_tier": "LOW",    "expected_score_range": [0, 20] },
+        "low_power":      { "expected_tier": "LOW",    "expected_score_range": [0, 15] },
+        "critical_state": { "expected_tier": "LOW",    "expected_score_range": [0, 15] }
+      }
+    },
+
+    "DISABLE_SAFE_MODE": {
+      "apid": "0x18E",
+      "apid_int": 398,
+      "subsystem": "EPS",
+      "function_code": "0x11",
+      "description": "Disable satellite safe mode — safety critical",
+      "packet_hex": "198EC000000111B3A2",
+      "parameters": {},
+      "expected_parse": {
+        "success": true,
+        "apid": 398,
+        "subsystem": "EPS",
+        "command_type": "DISABLE_SAFE_MODE",
+        "sequence_count": 0,
+        "crc_valid": true
+      },
+      "telemetry_contexts": {
+        "nominal":        { "expected_tier": "LOW",    "expected_score_range": [15, 30] },
+        "low_power":      { "expected_tier": "HIGH",   "expected_score_range": [75, 95] },
+        "critical_state": { "expected_tier": "HIGH",   "expected_score_range": [85, 100] }
+      }
+    },
+
+    "UPDATE_PARAMETER": {
+      "apid": "0x200",
+      "apid_int": 512,
+      "subsystem": "OBC",
+      "function_code": "0x20",
+      "description": "Update an OBC configuration parameter",
+      "packet_hex": "1A008000000120050A3C7D",
+      "parameters": { "param_id": 5, "value": 10 },
+      "expected_parse": {
+        "success": true,
+        "apid": 512,
+        "subsystem": "OBC",
+        "command_type": "UPDATE_PARAMETER",
+        "sequence_count": 0,
+        "crc_valid": true
+      },
+      "telemetry_contexts": {
+        "nominal":        { "expected_tier": "MEDIUM", "expected_score_range": [31, 55] },
+        "low_power":      { "expected_tier": "MEDIUM", "expected_score_range": [40, 65] },
+        "critical_state": { "expected_tier": "MEDIUM", "expected_score_range": [45, 70] }
+      }
+    },
+
+    "RESET_SUBSYSTEM": {
+      "apid": "0x201",
+      "apid_int": 513,
+      "subsystem": "OBC",
+      "function_code": "0x21",
+      "description": "Reset a specific satellite subsystem",
+      "packet_hex": "1A018000000121030192B4",
+      "parameters": { "subsystem_id": 3 },
+      "expected_parse": {
+        "success": true,
+        "apid": 513,
+        "subsystem": "OBC",
+        "command_type": "RESET_SUBSYSTEM",
+        "sequence_count": 0,
+        "crc_valid": true
+      },
+      "telemetry_contexts": {
+        "nominal":        { "expected_tier": "MEDIUM", "expected_score_range": [35, 55] },
+        "low_power":      { "expected_tier": "MEDIUM", "expected_score_range": [45, 65] },
+        "critical_state": { "expected_tier": "HIGH",   "expected_score_range": [65, 80] }
+      }
+    },
+
+    "UPDATE_AUTH_KEY": {
+      "apid": "0x202",
+      "apid_int": 514,
+      "subsystem": "OBC",
+      "function_code": "0x22",
+      "description": "Update authentication key — security critical",
+      "packet_hex": "1A028000000122AABBCCDD44F1",
+      "parameters": { "key_slot": 0, "key_material": "AABBCCDD" },
+      "expected_parse": {
+        "success": true,
+        "apid": 514,
+        "subsystem": "OBC",
+        "command_type": "UPDATE_AUTH_KEY",
+        "sequence_count": 0,
+        "crc_valid": true
+      },
+      "telemetry_contexts": {
+        "nominal":        { "expected_tier": "HIGH",   "expected_score_range": [75, 90] },
+        "low_power":      { "expected_tier": "HIGH",   "expected_score_range": [80, 95] },
+        "critical_state": { "expected_tier": "HIGH",   "expected_score_range": [85, 100] }
+      }
+    },
+
+    "RESET_OBC": {
+      "apid": "0x203",
+      "apid_int": 515,
+      "subsystem": "OBC",
+      "function_code": "0x23",
+      "description": "Full on-board computer reset",
+      "packet_hex": "1A038000000123E5D3",
+      "parameters": {},
+      "expected_parse": {
+        "success": true,
+        "apid": 515,
+        "subsystem": "OBC",
+        "command_type": "RESET_OBC",
+        "sequence_count": 0,
+        "crc_valid": true
+      },
+      "telemetry_contexts": {
+        "nominal":        { "expected_tier": "HIGH",   "expected_score_range": [72, 85] },
+        "low_power":      { "expected_tier": "HIGH",   "expected_score_range": [80, 92] },
+        "critical_state": { "expected_tier": "HIGH",   "expected_score_range": [88, 100] }
+      }
+    },
+
+    "DISABLE_WATCHDOG": {
+      "apid": "0x204",
+      "apid_int": 516,
+      "subsystem": "OBC",
+      "function_code": "0x24",
+      "description": "Disable OBC watchdog timer — removes automatic recovery",
+      "packet_hex": "1A048000000124F2A1",
+      "parameters": {},
+      "expected_parse": {
+        "success": true,
+        "apid": 516,
+        "subsystem": "OBC",
+        "command_type": "DISABLE_WATCHDOG",
+        "sequence_count": 0,
+        "crc_valid": true
+      },
+      "telemetry_contexts": {
+        "nominal":        { "expected_tier": "HIGH",   "expected_score_range": [78, 90] },
+        "low_power":      { "expected_tier": "HIGH",   "expected_score_range": [83, 95] },
+        "critical_state": { "expected_tier": "HIGH",   "expected_score_range": [90, 100] }
+      }
+    },
+
+    "FORCE_REBOOT": {
+      "apid": "0x205",
+      "apid_int": 517,
+      "subsystem": "OBC",
+      "function_code": "0x25",
+      "description": "Force immediate satellite system reboot",
+      "packet_hex": "1A058000000125C7B9",
+      "parameters": {},
+      "expected_parse": {
+        "success": true,
+        "apid": 517,
+        "subsystem": "OBC",
+        "command_type": "FORCE_REBOOT",
+        "sequence_count": 0,
+        "crc_valid": true
+      },
+      "telemetry_contexts": {
+        "nominal":        { "expected_tier": "HIGH",   "expected_score_range": [74, 86] },
+        "low_power":      { "expected_tier": "HIGH",   "expected_score_range": [82, 93] },
+        "critical_state": { "expected_tier": "HIGH",   "expected_score_range": [88, 100] }
+      }
+    },
+
+    "SCHEDULE_MANOEUVRE": {
+      "apid": "0x300",
+      "apid_int": 768,
+      "subsystem": "ADCS",
+      "function_code": "0x30",
+      "description": "Schedule an orbital attitude manoeuvre",
+      "packet_hex": "1B008000000130001E00003C81D2",
+      "parameters": { "delta_yaw_deg": 30, "delta_pitch_deg": 60 },
+      "expected_parse": {
+        "success": true,
+        "apid": 768,
+        "subsystem": "ADCS",
+        "command_type": "SCHEDULE_MANOEUVRE",
+        "sequence_count": 0,
+        "crc_valid": true
+      },
+      "telemetry_contexts": {
+        "nominal":        { "expected_tier": "MEDIUM", "expected_score_range": [35, 55] },
+        "low_power":      { "expected_tier": "MEDIUM", "expected_score_range": [45, 65] },
+        "critical_state": { "expected_tier": "HIGH",   "expected_score_range": [68, 82] }
+      }
+    },
+
+    "ATTITUDE_MANOEUVRE": {
+      "apid": "0x301",
+      "apid_int": 769,
+      "subsystem": "ADCS",
+      "function_code": "0x31",
+      "description": "Execute immediate attitude manoeuvre",
+      "packet_hex": "1B018000000131000F0000001E3F5A",
+      "parameters": { "delta_yaw_deg": 15, "delta_pitch_deg": 30 },
+      "expected_parse": {
+        "success": true,
+        "apid": 769,
+        "subsystem": "ADCS",
+        "command_type": "ATTITUDE_MANOEUVRE",
+        "sequence_count": 0,
+        "crc_valid": true
+      },
+      "telemetry_contexts": {
+        "nominal":        { "expected_tier": "MEDIUM", "expected_score_range": [40, 60] },
+        "low_power":      { "expected_tier": "HIGH",   "expected_score_range": [65, 80] },
+        "critical_state": { "expected_tier": "HIGH",   "expected_score_range": [75, 90] }
+      }
+    },
+
+    "THRUSTER_FIRE": {
+      "apid": "0x302",
+      "apid_int": 770,
+      "subsystem": "ADCS",
+      "function_code": "0x32",
+      "description": "Fire satellite thruster — irreversible orbital change",
+      "packet_hex": "1B028000000132000A00001492B1",
+      "parameters": { "thrust_ms": 10, "thrust_axis": 20 },
+      "expected_parse": {
+        "success": true,
+        "apid": 770,
+        "subsystem": "ADCS",
+        "command_type": "THRUSTER_FIRE",
+        "sequence_count": 0,
+        "crc_valid": true
+      },
+      "telemetry_contexts": {
+        "nominal":        { "expected_tier": "HIGH",   "expected_score_range": [72, 85] },
+        "low_power":      { "expected_tier": "HIGH",   "expected_score_range": [85, 95] },
+        "critical_state": { "expected_tier": "HIGH",   "expected_score_range": [90, 100] }
+      }
+    },
+
+    "PAYLOAD_ACTIVATE": {
+      "apid": "0x400",
+      "apid_int": 1024,
+      "subsystem": "PAYLOAD",
+      "function_code": "0x40",
+      "description": "Activate payload instrument",
+      "packet_hex": "1C008000000140019A43",
+      "parameters": { "payload_id": 1 },
+      "expected_parse": {
+        "success": true,
+        "apid": 1024,
+        "subsystem": "PAYLOAD",
+        "command_type": "PAYLOAD_ACTIVATE",
+        "sequence_count": 0,
+        "crc_valid": true
+      },
+      "telemetry_contexts": {
+        "nominal":        { "expected_tier": "MEDIUM", "expected_score_range": [31, 50] },
+        "low_power":      { "expected_tier": "MEDIUM", "expected_score_range": [45, 65] },
+        "critical_state": { "expected_tier": "HIGH",   "expected_score_range": [65, 80] }
+      }
+    }
+  },
+
+  "invalid_packets": {
+    "empty_string":       { "packet_hex": "",          "expected_error": "INVALID_HEX" },
+    "non_hex_chars":      { "packet_hex": "ZZZZ1234",  "expected_error": "INVALID_HEX" },
+    "too_short":          { "packet_hex": "190000",    "expected_error": "TOO_SHORT" },
+    "wrong_version":      { "packet_hex": "390EC00000011234",  "expected_error": "INVALID_VERSION" },
+    "unknown_apid":       { "packet_hex": "1FFFC000000100ABCD", "expected_error": "UNKNOWN_APID" },
+    "bad_data_length":    { "packet_hex": "1900C000FFFF01ABCD", "expected_error": "BAD_LENGTH" },
+    "bad_crc":            { "packet_hex": "1900C0000000010000", "expected_error": "BAD_CRC" }
+  },
+
+  "telemetry_contexts": {
+    "nominal": {
+      "battery_percent": 78.0,
+      "safe_mode_active": false,
+      "thermal_status": "NOMINAL",
+      "orbital_phase": "SUNLIT",
+      "link_margin_db": 12.5,
+      "last_contact_min": 4
+    },
+    "low_power": {
+      "battery_percent": 9.0,
+      "safe_mode_active": true,
+      "thermal_status": "ELEVATED",
+      "orbital_phase": "ECLIPSE",
+      "link_margin_db": 3.2,
+      "last_contact_min": 18
+    },
+    "critical_state": {
+      "battery_percent": 22.0,
+      "safe_mode_active": false,
+      "thermal_status": "CRITICAL",
+      "orbital_phase": "PENUMBRA",
+      "link_margin_db": 1.1,
+      "last_contact_min": 35
+    }
+  },
+
+  "command_type_to_apid_map": {
+    "REQUEST_TELEMETRY":   256,
+    "SET_BEACON_RATE":     257,
+    "REQUEST_STATUS":      258,
+    "ENABLE_SAFE_MODE":    399,
+    "DISABLE_SAFE_MODE":   398,
+    "UPDATE_PARAMETER":    512,
+    "RESET_SUBSYSTEM":     513,
+    "UPDATE_AUTH_KEY":     514,
+    "RESET_OBC":           515,
+    "DISABLE_WATCHDOG":    516,
+    "FORCE_REBOOT":        517,
+    "SCHEDULE_MANOEUVRE":  768,
+    "ATTITUDE_MANOEUVRE":  769,
+    "THRUSTER_FIRE":       770,
+    "PAYLOAD_ACTIVATE":    1024
+  }
+}

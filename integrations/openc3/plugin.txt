@@ -1,0 +1,14 @@
+# SCSP Shim Plugin — routes COSMOS commands through the SCSP security pipeline.
+# Variables are prompted at plugin-install time in the COSMOS Admin UI.
+
+VARIABLE scsp_host localhost
+VARIABLE scsp_port 8000
+VARIABLE scsp_api_key changeme
+VARIABLE target_name SAT_ALPHA
+
+# HTTP interface to the SCSP C2 proxy. The write protocol wraps each command
+# packet as JSON for POST /api/v1/c2/forward; reads are not handled here
+# (telemetry keeps flowing over the existing TLM interface).
+INTERFACE SCSP_PROXY_INT http_client_interface.rb <%= scsp_host %> <%= scsp_port %> http false
+  PROTOCOL WRITE scsp_forward_protocol.rb <%= scsp_api_key %> <%= target_name %>
+  MAP_TARGET <%= target_name %>

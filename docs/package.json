@@ -1,0 +1,36 @@
+{
+  "name": "scsp-frontend",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev --port 3000",
+    "build": "next build",
+    "start": "next start --port 3000",
+    "lint": "next lint",
+    "type-check": "tsc --noEmit"
+  },
+  "dependencies": {
+    "next": "14.2.3",
+    "react": "18.3.1",
+    "react-dom": "18.3.1",
+    "axios": "1.7.2",
+    "recharts": "2.12.7",
+    "lucide-react": "0.383.0",
+    "clsx": "2.1.1",
+    "uuid": "9.0.1",
+    "js-cookie": "3.0.5"
+  },
+  "devDependencies": {
+    "typescript": "5.4.5",
+    "@types/react": "18.3.3",
+    "@types/react-dom": "18.3.0",
+    "@types/node": "20.12.12",
+    "@types/uuid": "9.0.8",
+    "@types/js-cookie": "3.0.6",
+    "tailwindcss": "3.4.3",
+    "autoprefixer": "10.4.19",
+    "postcss": "8.4.38",
+    "eslint": "8.57.0",
+    "eslint-config-next": "14.2.3"
+  }
+}

@@ -1,0 +1,238 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ── CSS custom properties ─────────────────────────────────────────────────── */
+:root {
+  /* Dark mode tokens (default — platform is dark-first) */
+  --surface-0: #0B0F19;
+  --surface-1: #111827;
+  --surface-2: #1A2234;
+  --surface-3: #1F2937;
+
+  --border-subtle:  rgba(255, 255, 255, 0.05);
+  --border-default: rgba(255, 255, 255, 0.09);
+  --border-strong:  rgba(255, 255, 255, 0.16);
+
+  --text-primary:   #F9FAFB;
+  --text-secondary: #9CA3AF;
+  --text-muted:     #6B7280;
+  --text-disabled:  #4B5563;
+  --text-inverse:   #0B0F19;
+
+  /* Sidebar specific */
+  --sidebar-bg:         #0D1117;
+  --sidebar-item-hover: rgba(79, 107, 255, 0.10);
+  --sidebar-item-active-bg: rgba(79, 107, 255, 0.16);
+  --sidebar-item-active-text: #7E9BFF;
+  --sidebar-group-label: #4B5563;
+}
+
+/* Light mode token overrides */
+.light {
+  --surface-0: #F3F6FB;
+  --surface-1: #FFFFFF;
+  --surface-2: #F8FAFC;
+  --surface-3: #F1F5F9;
+
+  --border-subtle:  rgba(0, 0, 0, 0.05);
+  --border-default: rgba(0, 0, 0, 0.10);
+  --border-strong:  rgba(0, 0, 0, 0.18);
+
+  --text-primary:   #0F172A;
+  --text-secondary: #475569;
+  --text-muted:     #94A3B8;
+  --text-disabled:  #CBD5E1;
+  --text-inverse:   #F9FAFB;
+
+  --sidebar-bg:           #1A1F36;
+  --sidebar-item-hover:   rgba(79, 107, 255, 0.10);
+  --sidebar-item-active-bg:   rgba(79, 107, 255, 0.16);
+  --sidebar-item-active-text: #7E9BFF;
+  --sidebar-group-label:  rgba(255, 255, 255, 0.35);
+}
+
+/* ── Base reset ─────────────────────────────────────────────────────────────── */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}
+
+body {
+  background-color: var(--surface-0);
+  color: var(--text-primary);
+  font-family: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+  font-size: 13px;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* ── Custom scrollbar ───────────────────────────────────────────────────────── */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.12);
+  border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.20);
+}
+.light ::-webkit-scrollbar-thumb {
+  background: rgba(0, 0, 0, 0.15);
+}
+
+/* ── Focus rings ─────────────────────────────────────────────────────────────── */
+:focus-visible {
+  outline: 2px solid #4F6BFF;
+  outline-offset: 2px;
+}
+
+/* ── Monospace / code elements ──────────────────────────────────────────────── */
+.font-mono,
+code,
+pre,
+[data-mono] {
+  font-family: var(--font-mono), ui-monospace, SFMono-Regular, monospace;
+}
+
+/* ── Utility: no scrollbar but still scrollable ─────────────────────────────── */
+.scrollbar-none {
+  scrollbar-width: none;
+}
+
+/* ── react-grid-layout theme overrides (layout editor) ──────────────────────── */
+.react-grid-item.react-grid-placeholder {
+  background: #4F6BFF;
+  opacity: 0.18;
+  border-radius: 8px;
+}
+.react-grid-item > .react-resizable-handle {
+  z-index: 30;
+}
+.react-grid-item > .react-resizable-handle::after {
+  right: 4px;
+  bottom: 4px;
+  width: 8px;
+  height: 8px;
+  border-right: 2px solid var(--text-muted);
+  border-bottom: 2px solid var(--text-muted);
+}
+.react-grid-item:hover > .react-resizable-handle::after {
+  border-color: #4F6BFF;
+}
+.scrollbar-none::-webkit-scrollbar {
+  display: none;
+}
+
+/* ── Reduced motion ──────────────────────────────────────────────────────────── */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* ── Layer: component ─────────────────────────────────────────────────────────── */
+@layer components {
+
+  /* Card base */
+  .card {
+    @apply bg-surface-1 border border-border rounded-md shadow-card;
+  }
+  .card-elevated {
+    @apply bg-surface-2 border border-border rounded-md shadow-card-md;
+  }
+
+  /* Section header inside cards */
+  .section-label {
+    @apply text-2xs font-semibold tracking-widest uppercase text-content-muted;
+  }
+
+  /* KPI metric number */
+  .metric-value {
+    @apply text-5xl font-bold tabular-nums leading-none;
+  }
+
+  /* Status dot */
+  .status-dot {
+    @apply inline-block w-2 h-2 rounded-full;
+  }
+  .status-dot-online  { @apply bg-success; }
+  .status-dot-warning { @apply bg-warning; }
+  .status-dot-offline { @apply bg-content-muted; }
+  .status-dot-danger  { @apply bg-danger; }
+
+  /* Live pulse badge */
+  .live-badge {
+    @apply inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full
+           text-2xs font-semibold uppercase tracking-widest
+           bg-success-subtle text-success border border-success-border;
+  }
+  .live-badge::before {
+    content: "";
+    @apply block w-1.5 h-1.5 rounded-full bg-success animate-pulse-dot;
+  }
+
+  /* Sidebar navigation item */
+  .nav-item {
+    @apply flex items-center gap-2.5 px-3 py-2 rounded text-sm
+           text-content-secondary transition-colors duration-150
+           hover:bg-[var(--sidebar-item-hover)] hover:text-content-primary cursor-pointer;
+  }
+  .nav-item-active {
+    @apply bg-[var(--sidebar-item-active-bg)] text-[var(--sidebar-item-active-text)];
+  }
+
+  /* Input base */
+  .input-base {
+    @apply w-full px-3 py-2 rounded bg-surface-2 border border-border
+           text-base text-content-primary placeholder:text-content-muted
+           focus:outline-none focus:ring-1 focus:ring-accent focus:border-accent
+           transition-colors duration-150;
+  }
+
+  /* Button variants */
+  .btn-primary {
+    @apply inline-flex items-center justify-center gap-2 px-4 py-2 rounded
+           bg-accent hover:bg-accent-hover text-white text-sm font-medium
+           transition-colors duration-150 focus:outline-none focus:ring-2
+           focus:ring-accent focus:ring-offset-2 focus:ring-offset-surface-1
+           disabled:opacity-50 disabled:cursor-not-allowed;
+  }
+  .btn-secondary {
+    @apply inline-flex items-center justify-center gap-2 px-4 py-2 rounded
+           bg-surface-2 hover:bg-surface-3 border border-border
+           text-content-secondary hover:text-content-primary text-sm font-medium
+           transition-colors duration-150 focus:outline-none focus:ring-2
+           focus:ring-accent focus:ring-offset-2 focus:ring-offset-surface-1
+           disabled:opacity-50 disabled:cursor-not-allowed;
+  }
+  .btn-danger {
+    @apply inline-flex items-center justify-center gap-2 px-4 py-2 rounded
+           bg-danger hover:bg-danger-muted text-white text-sm font-medium
+           transition-colors duration-150 focus:outline-none focus:ring-2
+           focus:ring-danger focus:ring-offset-2 focus:ring-offset-surface-1
+           disabled:opacity-50 disabled:cursor-not-allowed;
+  }
+  .btn-ghost {
+    @apply inline-flex items-center justify-center gap-2 px-3 py-1.5 rounded
+           text-content-secondary hover:text-content-primary hover:bg-surface-2
+           text-sm font-medium transition-colors duration-150
+           focus:outline-none focus:ring-1 focus:ring-accent;
+  }
+}

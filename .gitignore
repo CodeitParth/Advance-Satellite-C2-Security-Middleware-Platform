@@ -1,0 +1,62 @@
+# ── Secrets & Environment ─────────────────────────────────────────────────────
+backend/.env
+frontend/.env.local
+*.env
+!.env.example
+!.env.local.example
+
+# ── Python ────────────────────────────────────────────────────────────────────
+__pycache__/
+*.py[cod]
+*$py.class
+*.egg-info/
+.venv/
+venv/
+env/
+dist/
+build/
+.pytest_cache/
+.coverage
+htmlcov/
+.mypy_cache/
+.ruff_cache/
+
+# ── Node / Next.js ────────────────────────────────────────────────────────────
+frontend/node_modules/
+frontend/.next/
+frontend/out/
+frontend/.turbo/
+*.tsbuildinfo
+
+# ── Database ──────────────────────────────────────────────────────────────────
+*.sql.dump
+*.pgdump
+
+# ── OS ────────────────────────────────────────────────────────────────────────
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# ── IDE ───────────────────────────────────────────────────────────────────────
+.vscode/settings.json
+.idea/
+*.swp
+*.swo
+
+# ── Logs ─────────────────────────────────────────────────────────────────────
+*.log
+logs/
+
+# ── ngrok ────────────────────────────────────────────────────────────────────
+ngrok.yml
+ngrok.log
+
+# ── Ed25519 signing keys (auto-generated in dev — never commit) ───────────────
+backend/keys/
+
+# ── Agent / Claude internal (not for public repo) ─────────────────────────────
+.claude/
+SKILL.md
+CLAUDE.md
+CLAUDE.local.md
+PRESENTATION.md
