@@ -16,6 +16,7 @@ import json
 import logging
 from datetime import datetime
 from pathlib import Path
+from typing import cast
 from uuid import UUID
 
 from cryptography.hazmat.primitives import serialization
@@ -39,14 +40,14 @@ def _load_key() -> Ed25519PrivateKey:
         return _private_key
 
     if settings.ed25519_private_key_pem:
-        _private_key = serialization.load_pem_private_key(
+        _private_key = cast(Ed25519PrivateKey, serialization.load_pem_private_key(
             settings.ed25519_private_key_pem.encode(), password=None
-        )
+        ))
         logger.info("Ed25519 signing key loaded from environment")
     elif _KEY_PATH.exists():
-        _private_key = serialization.load_pem_private_key(
+        _private_key = cast(Ed25519PrivateKey, serialization.load_pem_private_key(
             _KEY_PATH.read_bytes(), password=None
-        )
+        ))
         logger.info("Ed25519 signing key loaded from %s", _KEY_PATH)
     else:
         _private_key = Ed25519PrivateKey.generate()

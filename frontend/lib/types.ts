@@ -97,6 +97,7 @@ export interface PendingCommand {
   sequence_alerts: SequenceAlert[];
   submitted_at: string;
   telemetry_snapshot: TelemetryState | null;
+  approvals?: ApprovalOut[];
 }
 
 // ── Approvals ─────────────────────────────────────────────────────────────────
@@ -109,6 +110,7 @@ export interface ApprovalOut {
   id: string;
   command_id: string;
   approver_id: string;
+  approver_username: string;
   decision: ApprovalDecision;
   justification: string;
   decided_at: string;

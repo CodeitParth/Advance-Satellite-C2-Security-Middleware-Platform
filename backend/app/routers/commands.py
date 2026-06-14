@@ -16,6 +16,7 @@ from app.models.command import (
     CommandSubmitRequest,
     CommandSubmitResponse,
     ScoreRequest,
+    SequenceAlert,
 )
 from app.models.operator import Role, TokenPayload
 from app.services.ai_scorer import ScoringError, score_command
@@ -96,25 +97,10 @@ async def _store_command(parsed, score, operator: TokenPayload, nonce: str,
     return row["id"]
 
 
-async def _store_replay_blocked(parsed, operator: TokenPayload, nonce: str, db) -> UUID:
-    row = await db.fetchrow(
-        """
-        INSERT INTO commands (
-            nonce, ccsds_apid, command_type, subsystem, parameters,
-            sequence_count, raw_packet_hex, status, submitter_id
-        ) VALUES ($1, $2, $3, $4, $5::jsonb, $6, $7, 'REPLAY_BLOCKED', $8)
-        RETURNING id
-        """,
-        nonce,
-        f"{parsed.apid:#05x}",
-        parsed.command_type,
-        parsed.subsystem,
-        json.dumps(parsed.parameters),
-        parsed.sequence_count,
-        parsed.raw_packet_hex,
-        UUID(operator.sub),
-    )
-    return row["id"]
+async def _store_replay_blocked(nonce: str, db) -> UUID | None:
+    # nonce is UNIQUE in commands table — look up the original rather than re-inserting
+    row = await db.fetchrow("SELECT id FROM commands WHERE nonce = $1", nonce)
+    return UUID(str(row["id"])) if row else None
 
 
 async def _get_session_context(operator_id: str, db) -> tuple[int, int]:
@@ -172,7 +158,7 @@ async def run_submit_pipeline(
     # 2. Replay check
     if ReplayDetector.check_replay(body.nonce):
         try:
-            replay_cmd_id = await _store_replay_blocked(parsed, operator, body.nonce, db)
+            replay_cmd_id = await _store_replay_blocked(body.nonce, db)
             await ledger_append(
                 command_id=replay_cmd_id,
                 event_type="REPLAY_BLOCKED",
@@ -300,7 +286,7 @@ async def run_submit_pipeline(
         sparta_technique=score.sparta_technique,
         cvss_estimate=score.cvss_estimate,
         affected_subsystems=score.affected_subsystems,
-        sequence_alerts=sequence_hits,
+        sequence_alerts=[SequenceAlert(**hit) for hit in sequence_hits],
         demo_mode=score.demo_mode,
     )
 

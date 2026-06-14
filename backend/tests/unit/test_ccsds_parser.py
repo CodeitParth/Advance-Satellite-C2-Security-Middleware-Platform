@@ -25,12 +25,14 @@ class TestValidParse:
     def test_valid_request_telemetry(self):
         result = parse_ccsds_packet(VALID_REQUEST_TELEMETRY)
         assert result.success
+        assert result.parsed is not None
         assert result.parsed.command_type == "REQUEST_TELEMETRY"
         assert result.parsed.subsystem == "TM"
 
     def test_valid_disable_safe_mode(self):
         result = parse_ccsds_packet(VALID_DISABLE_SAFE_MODE)
         assert result.success
+        assert result.parsed is not None
         assert result.parsed.command_type == "DISABLE_SAFE_MODE"
         assert result.parsed.subsystem == "EPS"
 
@@ -38,6 +40,7 @@ class TestValidParse:
         for apid, expected_type in APID_COMMAND_MAP.items():
             result = parse_ccsds_packet(_build_packet(apid))
             assert result.success, f"APID {apid:#05x}: {result.error}"
+            assert result.parsed is not None
             assert result.parsed.command_type == expected_type
             assert result.parsed.subsystem == APID_REGISTRY[apid]
 

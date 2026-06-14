@@ -192,13 +192,22 @@ class ApiClient {
   }
 
   async getPendingCommands(): Promise<PendingCommand[]> {
-    const cmds = await this.request<PendingCommand[]>("GET", "/commands/pending");
-    return cmds.map((c) => ({ ...c, sequence_alerts: normalizeSequenceAlerts(c.sequence_alerts) }));
+    const cmds = await this.request<Record<string, unknown>[]>("GET", "/commands/pending");
+    return cmds.map((c) => ({
+      ...c,
+      // DB column is ai_justification; alias to justification for frontend type
+      justification: (c.ai_justification as string) ?? (c.justification as string) ?? "",
+      sequence_alerts: normalizeSequenceAlerts(c.sequence_alerts),
+    } as PendingCommand));
   }
 
   async getCommand(id: string): Promise<PendingCommand> {
-    const cmd = await this.request<PendingCommand>("GET", `/commands/${id}`);
-    return { ...cmd, sequence_alerts: normalizeSequenceAlerts(cmd.sequence_alerts) };
+    const cmd = await this.request<Record<string, unknown>>("GET", `/commands/${id}`);
+    return {
+      ...cmd,
+      justification: (cmd.ai_justification as string) ?? (cmd.justification as string) ?? "",
+      sequence_alerts: normalizeSequenceAlerts(cmd.sequence_alerts),
+    } as PendingCommand;
   }
 
   async approveCommand(id: string, body: ApprovalRequest): Promise<ApprovalResult> {

@@ -3,6 +3,7 @@ import asyncio
 import json
 import logging
 import socket
+from datetime import datetime, timezone
 from uuid import UUID
 
 from app.config import settings
@@ -99,3 +100,52 @@ async def dispatch_to_obc(parsed_command, command_id: UUID, db_pool) -> dict:
         )
 
     return result
+
+
+async def _poll_once() -> bool:
+    """Send REQUEST_TELEMETRY to OBC and sync TelemetryService. Returns True on ACK."""
+    payload = json.dumps({
+        "command_id": f"poll-{datetime.now(timezone.utc).strftime('%H%M%S%f')}",
+        "command_type": "REQUEST_TELEMETRY",
+        "subsystem": "TM",
+        "parameters": {},
+    }).encode("utf-8")
+
+    result = await asyncio.to_thread(_send_udp, payload)
+    if result is None:
+        return False
+
+    if result.get("status") == "ACK" and "telemetry" in result:
+        obc_tel = result["telemetry"]
+        update = {k: v for k, v in obc_tel.items() if k in _TELEMETRY_FIELDS}
+        if "thermal_status" in update:
+            update["thermal_status"] = ThermalStatus(update["thermal_status"])
+        if "orbital_phase" in update:
+            update["orbital_phase"] = OrbitalPhase(update["orbital_phase"])
+        await TelemetryService.update(update)
+        return True
+
+    return False
+
+
+async def start_obc_poller(interval_s: float = 5.0) -> None:
+    """Background task: keep TelemetryService in sync with the live OBC state."""
+    if not settings.obc_enabled:
+        logger.info("OBC disabled — telemetry poller not started")
+        return
+    logger.info("OBC telemetry poller started (interval=%ss)", interval_s)
+    # Sync immediately on startup so the frontend never shows stale defaults
+    try:
+        synced = await _poll_once()
+        if synced:
+            logger.info("OBC initial telemetry sync complete")
+        else:
+            logger.warning("OBC initial telemetry sync failed — will retry on next poll")
+    except Exception as exc:
+        logger.warning("OBC initial telemetry sync error: %s", exc)
+    while True:
+        await asyncio.sleep(interval_s)
+        try:
+            await _poll_once()
+        except Exception as exc:
+            logger.warning("OBC telemetry poll error: %s", exc)

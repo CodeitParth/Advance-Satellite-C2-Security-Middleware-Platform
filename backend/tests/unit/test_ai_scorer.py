@@ -165,7 +165,7 @@ def _score_request(**overrides) -> ScoreRequest:
         ),
     )
     defaults.update(overrides)
-    return ScoreRequest(**defaults)
+    return ScoreRequest(**defaults)  # type: ignore[arg-type]
 
 
 class TestBuildPrompt:

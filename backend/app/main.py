@@ -16,17 +16,19 @@ from app.routers import admin, auth, c2_proxy, commands, constellation, ledger, 
 from app.routers import health
 from app.services.auth_chain import check_pending_timeouts
 from app.services.constellation import constellation_hub
+from app.services.obc_client import start_obc_poller
 from app.services.telemetry_service import TelemetryService
 from app.utils.logging_utils import setup_logging
 
 logger = logging.getLogger(__name__)
 
 _pending_timeout_task: asyncio.Task | None = None
+_obc_poller_task: asyncio.Task | None = None
 
 
 @asynccontextmanager
 async def lifespan(_: FastAPI):
-    global _pending_timeout_task
+    global _pending_timeout_task, _obc_poller_task
 
     log_fmt = settings.log_format or ("json" if settings.app_env == "production" else "text")
     setup_logging(settings.log_level, log_fmt)
@@ -36,6 +38,9 @@ async def lifespan(_: FastAPI):
     _pending_timeout_task = asyncio.create_task(
         check_pending_timeouts(), name="pending-timeout-handler"
     )
+    _obc_poller_task = asyncio.create_task(
+        start_obc_poller(interval_s=5.0), name="obc-telemetry-poller"
+    )
     await constellation_hub.start()
     logger.info(
         "SCSP backend started — env=%s demo_mode=%s host=%s port=%d",
@@ -44,12 +49,13 @@ async def lifespan(_: FastAPI):
 
     yield
 
-    if _pending_timeout_task and not _pending_timeout_task.done():
-        _pending_timeout_task.cancel()
-        try:
-            await asyncio.wait_for(_pending_timeout_task, timeout=5.0)
-        except (asyncio.CancelledError, asyncio.TimeoutError):
-            pass
+    for task in (_pending_timeout_task, _obc_poller_task):
+        if task and not task.done():
+            task.cancel()
+            try:
+                await asyncio.wait_for(task, timeout=5.0)
+            except (asyncio.CancelledError, asyncio.TimeoutError):
+                pass
     await constellation_hub.stop()
     await close_pool()
     logger.info("SCSP backend stopped")

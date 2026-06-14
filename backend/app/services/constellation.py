@@ -115,7 +115,7 @@ class ConstellationHub:
             "local_satellite": LOCAL_SATELLITE,
             "bus": "redis" if self._redis else "simulated",
             "elevation_active": self.elevation_active(),
-            "elevated_until": self.elevated_until.isoformat() if active else None,
+            "elevated_until": self.elevated_until.isoformat() if self.elevated_until is not None else None,
             "elevation_source": self.elevation_source if self.elevation_active() else None,
             "peers": [
                 {

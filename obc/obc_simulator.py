@@ -9,10 +9,10 @@ PORT = 9000
 BUFSIZE = 4096
 
 satellite_state = {
-    "battery_percent": 8.0,
+    "battery_percent": 90.0, # 78.0, 20.0, 5.0, 2.0
     "safe_mode_active": False,
     "thermal_status": "NOMINAL",
-    "orbital_phase": "SUNLIT",
+    "orbital_phase": "SUNLIT", # SUNLIT, PENUMBRA, ECLIPSE
     "link_margin_db": 12.5,
     "attitude": {"yaw": 0.0, "pitch": 0.0, "roll": 0.0},
     "subsystem_status": {
@@ -43,6 +43,20 @@ def _handle(command_type: str, parameters: dict) -> None:
         fn(parameters)
 
 
+_BATTERY_DELTA = {
+    "SUNLIT":   +0.05,   # solar panels charging
+    "PENUMBRA": -0.02,   # partial solar, slow drain
+    "ECLIPSE":  -0.10,   # no solar, normal drain
+}
+
+# Commands that consume power (active operations); telemetry reads do not drain battery
+_POWER_CONSUMING = frozenset({
+    "DISABLE_SAFE_MODE", "ENABLE_SAFE_MODE", "ATTITUDE_MANOEUVRE",
+    "RESET_SUBSYSTEM", "THRUSTER_FIRE", "UPDATE_PARAMETER",
+    "RESET_OBC", "PAYLOAD_ACTIVATE",
+})
+
+
 def _process(data: bytes) -> dict:
     try:
         req = json.loads(data.decode("utf-8"))
@@ -53,9 +67,13 @@ def _process(data: bytes) -> dict:
     parameters   = req.get("parameters", {})
     command_id   = req.get("command_id", "unknown")
 
-    satellite_state["battery_percent"] = round(
-        max(0.0, satellite_state["battery_percent"] - 0.1), 2
-    )
+    # Passive telemetry reads don't consume power; active commands do
+    if command_type in _POWER_CONSUMING:
+        phase = satellite_state.get("orbital_phase", "ECLIPSE")
+        delta = _BATTERY_DELTA.get(phase, -0.10)
+        satellite_state["battery_percent"] = round(
+            min(100.0, max(0.0, satellite_state["battery_percent"] + delta)), 2
+        )
 
     _handle(command_type, parameters)
 

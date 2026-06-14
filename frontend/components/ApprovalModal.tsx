@@ -13,7 +13,8 @@ import {
   X,
   XCircle,
 } from "lucide-react";
-import type { PendingCommand } from "../lib/types";
+import { api } from "../lib/api";
+import type { ApprovalOut, PendingCommand } from "../lib/types";
 import { ScoreGauge } from "./RiskScoreCard";
 import { CommandStatusBadge } from "./ui/StatusBadge";
 import { TelemetryPanel } from "./TelemetryPanel";
@@ -223,6 +224,22 @@ export function ApprovalModal({
   onReject,
   onClose,
 }: ApprovalModalProps) {
+  const [approvals, setApprovals] = useState<ApprovalOut[]>([]);
+  const [approvalsLoading, setApprovalsLoading] = useState(true);
+
+  // Fetch full command detail (includes approvals[]) when the modal opens
+  useEffect(() => {
+    setApprovalsLoading(true);
+    api.getCommand(command.id)
+      .then((detail) => setApprovals(detail.approvals ?? []))
+      .catch(() => {})
+      .finally(() => setApprovalsLoading(false));
+  }, [command.id]);
+
+  const approvedCount = approvals.filter((a) => a.decision === "APPROVED").length;
+  const required = command.status === "PENDING_DUAL_APPROVAL" ? 2 : 1;
+  const remaining = Math.max(0, required - approvedCount);
+
   // Lock page scroll + Escape closes
   useEffect(() => {
     const prevOverflow = document.body.style.overflow;
@@ -347,32 +364,92 @@ export function ApprovalModal({
             </div>
 
             <div className="card p-4">
-              <h3 className="text-sm font-semibold text-content-primary mb-2.5">Approval History</h3>
+              <h3 className="text-sm font-semibold text-content-primary mb-2.5">Approval Chain</h3>
               <div className="space-y-2.5">
+                {/* Operator submission */}
                 <div className="flex items-start gap-2.5">
                   <span className="flex items-center justify-center w-6 h-6 rounded-full bg-surface-3 text-content-secondary text-2xs font-bold shrink-0">
                     {command.submitter_username.charAt(0).toUpperCase()}
                   </span>
-                  <div>
+                  <div className="flex-1 min-w-0">
                     <div className="text-xs text-content-primary">
-                      <span className="font-semibold">{command.submitter_username}</span> submitted the command
+                      <span className="font-semibold">{command.submitter_username}</span>
+                      <span className="text-content-muted"> submitted command</span>
                     </div>
                     <div className="text-2xs text-content-muted font-mono">
-                      {new Date(command.submitted_at).toLocaleString()}
+                      {new Date(command.submitted_at).toLocaleString()} · AI scored {command.risk_tier} ({command.risk_score}/100)
                     </div>
                   </div>
                 </div>
-                <div className="flex items-start gap-2.5">
-                  <span className="flex items-center justify-center w-6 h-6 rounded-full bg-warning-subtle border border-warning-border shrink-0">
-                    <Loader2 className="w-3 h-3 text-warning animate-spin" />
-                  </span>
-                  <div>
-                    <div className="text-xs text-content-primary">
-                      Awaiting {command.status === "PENDING_DUAL_APPROVAL" ? "dual approval (2 required)" : "approval (1 required)"}
-                    </div>
-                    <div className="text-2xs text-content-muted">All decisions are recorded in the audit ledger</div>
+
+                {/* Loading spinner while fetching */}
+                {approvalsLoading && (
+                  <div className="flex items-center gap-1.5 text-2xs text-content-muted pl-8">
+                    <Loader2 className="w-3 h-3 animate-spin" /> Loading approval history…
                   </div>
-                </div>
+                )}
+
+                {/* Actual approval/rejection records */}
+                {!approvalsLoading && approvals.map((approval) => (
+                  <div key={approval.id} className="flex items-start gap-2.5">
+                    <span className={clsx(
+                      "flex items-center justify-center w-6 h-6 rounded-full shrink-0",
+                      approval.decision === "APPROVED"
+                        ? "bg-success-subtle border border-success-border"
+                        : "bg-danger-subtle border border-danger-border",
+                    )}>
+                      {approval.decision === "APPROVED"
+                        ? <Check className="w-3 h-3 text-success" />
+                        : <X className="w-3 h-3 text-danger" />}
+                    </span>
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-1.5 flex-wrap">
+                        <span className="text-xs font-semibold text-content-primary">
+                          {approval.approver_username ?? approval.approver_id.slice(0, 8)}
+                        </span>
+                        <span className={clsx(
+                          "px-1.5 py-0.5 rounded-xs text-2xs font-bold uppercase",
+                          approval.decision === "APPROVED"
+                            ? "bg-success-subtle text-success border border-success-border"
+                            : "bg-danger-subtle text-danger border border-danger-border",
+                        )}>
+                          {approval.decision}
+                        </span>
+                        {approval.is_override && (
+                          <span className="px-1.5 py-0.5 rounded-xs text-2xs font-bold uppercase bg-security-subtle text-security border border-security-border">
+                            OVERRIDE
+                          </span>
+                        )}
+                      </div>
+                      {approval.justification && (
+                        <p className="text-2xs text-content-secondary mt-0.5 italic leading-relaxed">
+                          &ldquo;{approval.justification}&rdquo;
+                        </p>
+                      )}
+                      <div className="text-2xs text-content-muted font-mono mt-0.5">
+                        {new Date(approval.decided_at).toLocaleString()}
+                      </div>
+                    </div>
+                  </div>
+                ))}
+
+                {/* Still awaiting more approvals */}
+                {!approvalsLoading && remaining > 0 && (
+                  <div className="flex items-start gap-2.5">
+                    <span className="flex items-center justify-center w-6 h-6 rounded-full bg-warning-subtle border border-warning-border shrink-0">
+                      <Loader2 className="w-3 h-3 text-warning animate-spin" />
+                    </span>
+                    <div>
+                      <div className="text-xs text-content-primary">
+                        Awaiting {remaining} more approval{remaining > 1 ? "s" : ""}
+                        {required > 1 && (
+                          <span className="text-content-muted"> ({approvedCount}/{required} received)</span>
+                        )}
+                      </div>
+                      <div className="text-2xs text-content-muted">All decisions are recorded in the audit ledger</div>
+                    </div>
+                  </div>
+                )}
               </div>
             </div>
           </div>
