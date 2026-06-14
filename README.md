@@ -108,6 +108,18 @@ Operator's command history showing dispatched, rejected, and security events. Th
 
 ---
 
+### Simulation — Orbital Ops Center & OBC Monitor
+
+**Orbital Operations Center** — interactive 3D globe showing live satellite positions (SAT_ALPHA, SAT_CHARLIE) and orbital tracks over Earth. Ground station markers (Houston, Munich, Bengaluru) update in real time. Telemetry stats and maneuver control panel are shown on the right.
+
+![Orbital Operations Center](screenshots/orbital_operational_center.png)
+
+**OBC Simulator — real-time telemetry injection** — the mock satellite UDP server (`obc/obc_simulator.py`) running in VS Code, with the terminal showing a continuous stream of `REQUEST_STATUS` and `REQUEST_TELEMETRY` packets being received and ACKed. The backend polls the OBC every 5 seconds and pushes updated telemetry (battery, orbital phase, thermal) into the in-memory telemetry singleton seen by the AI scorer and approvers.
+
+![OBC simulation real-time telemetry](screenshots/obc_simuation_continues-real-time-telemtry-data-injection-spacial-awareness.png)
+
+---
+
 ### Replay Attack Detection
 
 **Before attack** — Security tab shows 5 blocked events (timeouts) but no replay entries yet.
